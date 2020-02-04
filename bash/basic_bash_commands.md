@@ -17,6 +17,26 @@ Every path which begins with **/** is an absolute path. **/** means the root dir
 - `/var/log:`   log files
 - `/bin`: commonly used programs
 - `/usr/bin:` another location for programs
+- `/etc/passwd`: users listed here
+- `/etc/shadow`: hashed passwords
+- `/etc/group`: groups
+
+### User management
+Users can be found in `/etc/passwd`. It's important to note not all of them are real users. Many of them are just for running services. But how does one line look like? <br/>
+`cloudera:x:501:501::/home/cloudera:/bin/bash` <br/>
+`username:placeholderForPassword:userID:groupID:userInfo:homeDir:typeOfShell`
+
+User **groups** can be found in `/etc/group`:<br/>
+`groupName:placeholder:groupID:usersBelongToThisGroup`
+
+**Hashed passwords** can be found in `/etc/shadow`.
+`username:password:expiraryInfo` <br/>
+-> **\*** in place of password means no login with that<br/>
+-> **!** stands before password means login is blocked
+
+**Users can be created** with the following command:<br/>
+`useradd` more information in the manual<br/>
+`newusers` for batch user creation (more users in one step)
 
 
 
@@ -38,6 +58,10 @@ Command options have a short version, and long version. Short begins with -, lon
   - pressing q to exit from manual page
 - `head` and `tail`: prints first and last lines
 - `less`: a convinient way to scroll through a file
+- `w`, `who`: who is running what
+- `ln -s`: creating symbolic link
+- `command1` && `command2`: command2 will run if command1 was finished successfully
+- `id`: gives information about your ownerID, groups
 
 ### Permissions
 What can be done with a file?
@@ -75,7 +99,14 @@ An example looks like this:
 - piping: **|**
 
 ### Processes/Tasks
-`top` is the command which lists processes out in real time. Result looks like this:
+A process has two main parts:
+- adress space where it can write to
+- kernel data structure where kernel keeps information about the process
+
+Every process has a parent who started that one. If parent dies then chield process is reparented to init. Init process runs first. 
+
+
+`top` and `htop` is the command which lists processes out in real time. Result looks like this:
 ```Bash
 Tasks: 174 total, 3 running, 171 sleeping, 0 stopped
 KiB Mem: 4050604 total, 3114428 used, 936176 free <- memory
