@@ -13,13 +13,18 @@ Every path which begins with **/** is an absolute path. **/** means the root dir
 - **.**: current directory
 
 ### Important directories
-- `/etc:`config files for system
+`man hier` gives a general overview about file hierarchy
+- `/etc:`config files
 - `/var/log:`   log files
 - `/bin`: commonly used programs
 - `/usr/bin:` another location for programs
+- `/sbin`: system binaries, often root privileges needed
 - `/etc/passwd`: users listed here
 - `/etc/shadow`: hashed passwords
 - `/etc/group`: groups
+- `/proc`: process directories
+- `/temp`: temporary directory
+- `/lib`: system libraries
 
 ### User management
 Users can be found in `/etc/passwd`. It's important to note not all of them are real users. Many of them are just for running services. But how does one line look like? <br/>
@@ -45,7 +50,7 @@ Command options have a short version, and long version. Short begins with -, lon
 - `pwd:` where I am
 - `ls: ` lists contents of a directory (except hidden files, these begins with **.**)
     - `ls -l:` long listing: `drwxr-xr-x  2 ryan users 4096 Mar 23 13:34 bin`
-      - first character: **-** for normal file, **d** for directory
+      - first character: **-** for normal file, **d** for directory, **l** for links
       - next 9 characters are permissions
       - **ryan** is the the file or directory owner
       - **users** the group the file/directory belongs to
@@ -100,10 +105,19 @@ An example looks like this:
 
 ### Processes/Tasks
 A process has two main parts:
-- adress space where it can write to
+- address space where it can write to
 - kernel data structure where kernel keeps information about the process
 
-Every process has a parent who started that one. If parent dies then chield process is reparented to init. Init process runs first. 
+Every process has a parent who started that one. If parent dies then child process is reparented to init. Init process runs first.
+
+**Process states**
+- runnable: it has everything to run just need CPU time
+- sleeping: it is waiting for something
+- zombie: it has finished and waiting to give information back
+- stopped: the process has been stopped due to some reasons
+
+**Process niceness**<br/>
+It defines the priority of a process. The higher the number the lower the priority. Range is between -20 and 19.
 
 
 `top` and `htop` is the command which lists processes out in real time. Result looks like this:
