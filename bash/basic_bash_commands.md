@@ -24,7 +24,9 @@ Every path which begins with **/** is an absolute path. **/** means the root dir
 - `/etc/group`: groups
 - `/proc`: process directories
 - `/temp`: temporary directory
-- `/lib`: system libraries
+- `/lib`: system libraries, codes every program can use
+- `/dev`: devices
+- `/opt`: optional softwares, packages you do not install via package manager
 
 ### User management
 Users can be found in `/etc/passwd`. It's important to note not all of them are real users. Many of them are just for running services. But how does one line look like? <br/>
@@ -50,7 +52,7 @@ Command options have a short version, and long version. Short begins with -, lon
 - `pwd:` where I am
 - `ls: ` lists contents of a directory (except hidden files, these begins with **.**)
     - `ls -l:` long listing: `drwxr-xr-x  2 ryan users 4096 Mar 23 13:34 bin`
-      - first character: **-** for normal file, **d** for directory, **l** for links
+      - first character: **-** for normal file, **d** for directory, **l** for links, **b** for some store disk, **c** for devices
       - next 9 characters are permissions
       - **ryan** is the the file or directory owner
       - **users** the group the file/directory belongs to
