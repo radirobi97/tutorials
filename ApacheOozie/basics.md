@@ -21,7 +21,7 @@ These are the so called action nodes in Oozie.
 - start: starting the whole process
 - kill: killing the job in case of error
 - fork: calling multiple actions
-- join: merge multiple actions into one
+- join: merge multiple actions into  one
 - decision: making decision
 - end: end the whole process
 
