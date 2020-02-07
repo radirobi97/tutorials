@@ -1,2 +1,0 @@
-# tutorials
-useful codesnippets
