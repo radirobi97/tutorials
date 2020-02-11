@@ -7,14 +7,14 @@ If we are in the directory where script is located simply `./name_of_script`. <b
 **./** tells the system to ignore the **PATH** variable and search for the script in the current directory.
 
 ### Define a variable
-Just simply `name_of_var=12` (no spaces allowed). Referring to a variable `$name_of_var`.<br/>
-To save the output of a command to a variable we have to use **myvar=\`asd`** or `myvar=$( ls /etc | wc -l )`.<br/>
-If we want to use some variable in another script exporting is required. `export var1`.
+Just simply `name_of_var=12` (no spaces allowed). Referring to a variable `$name_of_var`. A more sophisticated way to use variables is `{$name_of_var}`<br/> <br/>
+To save the output of a command to a variable we have to use **myvar=\`some command`** or `myvar=$( ls /etc | wc -l )`.<br/>
+If we want to use some variable in another script exporting is required. `export var1` and calling a script **.\script2.sh**.
 
 ### Command line arguments
 - `$0`: name of the scripts
 - `$#`: how many command line arguments were given to the script
-- `$*`: all of the arguments
+- `$*` or `$@`: all of the arguments
 - `$?`: return status of the previously run command or function
 - `$1-$9`: any arguments
 
@@ -22,6 +22,17 @@ If we want to use some variable in another script exporting is required. `export
 - `read name_of_var`
 - `read -p 'Username: ' name_of_var`
 - `read -s name_of_var`: silent which is ideal to passwords
+
+```shell
+#!/bin/bash
+# A basic summary of my sales report
+echo Here is a summary of the sales data:
+echo ====================================
+echo
+
+cat /dev/stdin | cut -d' ' -f 2,3 | sort
+```
+This scipt above represent how to write a script which can be used in piping.
 
 ### Make scripts pipeable
 This section covers how to make our scripts be able to recieve piping. We should use just one of the followings:
