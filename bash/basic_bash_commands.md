@@ -147,3 +147,15 @@ Linux has several virtual consoles. We can switch between consoles by pressing *
 `jobs` lists out background processes. To put a process in the background type `sleep 5 &`, use the **&** smybol.
 
 A running process in the foreground can be put in the background as stopped by pressing **ctrl+z**. A background stopped process can be taken in the foreground with `fg PID_num`.
+
+
+### Tar
+Arcive and compression is not the same. Archive means put all things into one common file while compression means different mathematical algorithms to make file size smaller. <br/>
+`tar -zcvf docs.tar.gz Documents/`:<br/>
+- **f** stands for file name
+- **v** stands for verbose
+- **c** stands for create a new achive
+- **z** stands for compress the file
+
+`tar -zxvf docs.tar.gz`:
+- **x** stands for extract
