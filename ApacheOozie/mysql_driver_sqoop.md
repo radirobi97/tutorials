@@ -11,3 +11,5 @@ Check it out if it contains **mysql-connector-java.jar**. Sharelib default path 
 
 #### 3. update sharelib
 `oozie admin -oozie http://localhost:11000/oozie -sharelibupdate`
+
+After CDH-5 version a restart is NOT REQUIRED.
