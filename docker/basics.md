@@ -24,3 +24,9 @@ All docker containers use the resources of the host computer.
 
 #### Builds related things
 - `docker build -t this_will_be_the_name_of_image location_of_docker_file`: builds our image
+
+### Dangling images
+If we build an image with the same name, the older one losts his tag. Its called a **dangling** image.<br/>
+To list out dangling images and delete:
+- `docker images --filter "dangling=True"`
+- `docker rimi $(docker images -q --filter "dangling=True")`
