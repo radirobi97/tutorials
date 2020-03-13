@@ -47,6 +47,13 @@ print_goodbye = PythonOperator(
 print_hello >> print_goodbye
 ```
 
+#### Lifecycle of a task
+![lifecycle](./images/task_lifecycle_diagram.png)
+
+
+#### Default arguments
+If a dictionary of **default_args** is passed to a DAG, it will apply them to any of its operators. This makes it easy to apply a common parameter to many operators without having to type it many times.
+
 #### Airflow database/webserver
 Airflow has its own database to store credentials and history. It can be initialized `airflow initdb`. <br/>
 Airflow has a front-end UI. It can be started with `airflow webserver`.
