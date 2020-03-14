@@ -24,3 +24,4 @@ class User(val id: Long, email: String) {
 - **abstract** classes can not be instantieted
 - **interface methods** can have a default implementation
 - **interface properties** must be overwritten
+- **companion object** act like static in other programming languages
