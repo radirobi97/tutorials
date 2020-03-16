@@ -61,3 +61,14 @@ Airflow has a front-end UI. It can be started with `airflow webserver`.
 #### Airflow executor:
 They actually executes our tasks. These are configurable. Default executor is Sequential Exectuor. For example airflow can operate on multiple worker nodes. Blogs about it:
 - [guide to build airflow server](http://stlong0521.github.io/20161023%20-%20Airflow.html)
+
+#### Scheduler
+- to run for example periodically in every ten minutes: `timedelta(minutes=10)`
+- cron based notation can be used: `* * * * *`
+- to call airflow specific variables: `{{variable_name}}`
+	- `{{execution_date.strftime('%Y-%m-%d')}}`: execution date in a given format
+			- for example there are variables that can be used only in a given mode. `execution_date` is usable if the workflow has been started by scheduler, not by manually
+
+#### Best practices
+- partition data into smaller pieces [for example one file by day]
+- using specific variables to process always the actual new coming data
