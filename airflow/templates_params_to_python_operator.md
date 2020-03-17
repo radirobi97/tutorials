@@ -22,16 +22,18 @@ calculate_stats = PythonOperator(
    dag=dag,
 )
 ```
-**templates_dict, provide_context** must be defined as above
+**templates_dict, provide_context** must be defined as above.
 
 #### Basic function parameters to Python operator
+- `op_args`: serves as non-keyword parameters
+- `op_kwargs`: key-value pairs can be defined
+
 ```python
 def _calculate_stats(input_path, output_path):
     """Calculates event statistics."""
     events = pd.read_json(input_path)
     stats = events.groupby(["date", "user"]).size().reset_index()
     stats.to_csv(output_path, index=False)
-
 
 calculate_stats = PythonOperator(
     task_id="calculate_stats",
@@ -43,3 +45,7 @@ calculate_stats = PythonOperator(
     dag=dag,
 )
 ```
+##### Print out parameters of the called funtion in PythonOperator
+- this can be done on the UI after the particular dag has been started by scheduler
+- or anytime via CLI
+  - `airflow render [dag_id] [pythonoperator_id] [value_we_want_to_pass_to_the_function]`

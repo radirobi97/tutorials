@@ -9,6 +9,7 @@ It’s a general purpose workflow scheduler. Most of the time it is used as an E
 - `Tasks`: instances of an operators
 - `DAG`: made up from tasks
 - `XComs`: communicate between tasks in form of key/values pairs
+	- **ONLY FOR SMALL PIECES OF DATA**
 - `Variables`: they have a global scope so they are used most of the time for configuration
 - `Connections`: makes possible to connect to databases
 - `Hooks`: connection to our Connections
