@@ -16,6 +16,11 @@ This tutorial based on the book **[Data Pipelines with Apache Airflow](https://w
 				- [Scheduling workflows](#scheduling-workflows)
 				- [Failure](#failure)
 					- [In case of task failing](#in-case-of-task-failing)
+		- [Triggering workflows](#triggering-workflows)
+			- [Sensors](#sensors)
+				- [FileSensor](#filesensor)
+				- [PythonSensor](#pythonsensor)
+				- [Sensor Deadlock](#sensor-deadlock)
 
 <!-- /TOC -->
 
@@ -100,3 +105,58 @@ It’s not uncommon for tasks to fail, which could be for a multitude of reasons
 Checking the log is a good practice to find the root of an error. It can be done via the UI by clicking on that particular task and selcet view logs.
 
 Assume that one task failed. it would be unnecessary to restart the entire workflow. A nice feature of Airflow is that you can restart from the point of failure and onwards, without having to restart any previously succeeded tasks. To do this click on **CLEAR** button.
+
+
+### Triggering workflows
+So far we have seen how to schedule workflows based on time. Now lets take a look how to trigger workflow based on a specific event happened. For example a file has been uploaded.
+
+#### Sensors
+Sensors is a type of operators, which returns true if a certain condition is met, otherwise false. If false, the sensor will wait and try again until either the condition is true, or a timeout is eventually reached.
+
+##### FileSensor
+```python
+from airflow.contrib.sensors.file_sensor import FileSensor
+
+wait_for_data= FileSensor(
+   task_id="wait_for_data
+   filepath="/data/data.csv",
+)
+```
+This FileSensor will check for the existence of /data/data.csv and return True if the file exists.
+If not, it returns False and the sensor will wait for a given period (default 60 seconds) and try again.<br/> **This sensor should be an upstream of the proper task.**
+
+##### PythonSensor
+
+Another common sensor is `PythonSensor`. <br/>
+What if the data comes in multiple files namely data-1.csv, data-2.csv?<br/>
+In case of multiple files we make an agreement with the deliver. A file called **_DONE** should indicates that all data files have been uploaded. Now in our workflow we want to check for both the existence of one or more files named data-\*.csv and one file named **_SUCCESS**. <br/>The PythonSensor callable is however limited to returning a boolean value; True to indicate the condition is met successfully, False to indicate it is not.
+
+```python
+def _wait_for_data():
+   my_path = Path("/data/")
+   data_files = my_path.glob("data-*.csv")
+   success_file = my_path / "_SUCCESS"
+   return data_files and success_file.exists()
+
+
+wait_for_data = PythonSensor(
+   task_id="wait_for_data",
+   python_callable=_wait_for_data,
+   dag=dag,
+)
+```
+
+##### Sensor Deadlock
+In case of no coming data, sensors accept a timeout argument which holds the maximum number of seconds a sensor is allowed to run for.
+If, at the start of the next poke (poke=checking, is the official expression used by airflow), the number of running seconds turns out to be higher than the number set to timeout, the sensor will fail.
+
+By default, the sensor timeout is set to 7 days. If the DAG *schedule_interval* is set to once a day, this will lead to an undesired snowball effect
+there’s a limit to the number of tasks Airflow can handle.  There are limits to the maximum number of running tasks on various levels in Airflow:
+- **the number of tasks per DAG**,
+- **the number of tasks on a global Airflow level**,
+- **the number of DAG runs per DAG**, etc
+
+DAG class has a `concurrency` argument which controls how many simultaneously running tasks are allowed within that DAG. Tasks can be occupied all of the slots which
+results in a **sensor deadlock**. The Sensor class takes an argument mode, which can be set to either `poke` or `reschedule`. By default it’s set to `poke`, leading to the blocking behaviour.
+This means, the sensor task occupies a task slot as long as it’s running. Once in a while it pokes the condition, and then does nothing but still occupies a task slot. <br/>
+The sensor `reschedule` mode releases the slot after it has finished poking, so it only occupies the slots while it’s doing actual work. 
