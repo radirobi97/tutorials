@@ -3,21 +3,34 @@ This tutorial based on the book **[Data Pipelines with Apache Airflow](https://w
 
 ## Table of contents
 <!-- TOC depthFrom:1 depthTo:6 withLinks:1 updateOnSave:1 orderedList:0 -->
-- [What is Airflow?](#what-is-airflow)
-	- [Airflow nomenclature](#airflow-nomenclature)
-	- [What is Airflow for?](#what-is-airflow-for)
-	- [Airflow components](#airflow-components)
-	- [Backfilling](#backfilling)
-- [DAGs](#dags)
-	- [Structure of a basic dag](#structure-of-a-basic-dag)
-	- [Scheduling workflows](#scheduling-workflows)
-	- [Failure](#failure)
-	- [In case of task failing](#in-case-of-task-failing)
-- [Triggering workflows](#triggering-workflows)
-	- [Sensors](#sensors)
-		- [FileSensor](#filesensor)
-		- [PythonSensor](#pythonsensor)
-		- [Sensor Deadlock](#sensor-deadlock)
+
+- [Complete Airflow Tutorial](#complete-airflow-tutorial)
+	- [Table of contents](#table-of-contents)
+		- [What is Airflow?](#what-is-airflow)
+				- [Airflow nomenclature](#airflow-nomenclature)
+				- [What is Airflow for?](#what-is-airflow-for)
+				- [Airflow components](#airflow-components)
+				- [Backfilling](#backfilling)
+		- [DAGs](#dags)
+				- [Structure of a basic dag](#structure-of-a-basic-dag)
+				- [Failure](#failure)
+					- [In case of task failing](#in-case-of-task-failing)
+		- [Scheduling workflows](#scheduling-workflows)
+			- [Scheduling using macros](#scheduling-using-macros)
+			- [Start_date and End_date](#startdate-and-enddate)
+			- [Scheduling using cron intervals](#scheduling-using-cron-intervals)
+			- [Frequency based intervals](#frequency-based-intervals)
+			- [Execution_date](#executiondate)
+			- [What if start_date is in the past?](#what-if-startdate-is-in-the-past)
+		- [Triggering workflows](#triggering-workflows)
+			- [Sensors](#sensors)
+				- [FileSensor](#filesensor)
+				- [PythonSensor](#pythonsensor)
+				- [Sensor Deadlock](#sensor-deadlock)
+				- [TriggerDagRunOperator](#triggerdagrunoperator)
+					- [What about backfilling?](#what-about-backfilling)
+				- [ExternalTaskSensor](#externaltasksensor)
+				- [Triggering from CLI](#triggering-from-cli)
 
 <!-- /TOC -->
 
@@ -141,7 +154,16 @@ If we want a workflow to run on every third day we can use `timedelta`. <br/>
     `schedule_interval=timedelta(days=3)`
 
 #### Execution_date
-Airflow provides parameters that can be used. One of them is `execution_date`, which represents the date and time for which our DAG is being executed.
+Airflow provides parameters that can be used. One of them is `execution_date`, which represents the date and time for which our DAG is being executed. If we have a **start_date=2019-03-03**, then the execution_date will be 2019-03-03.
+
+We can refer to this in code as:<br/>
+`{{execution_date}}`<br/>
+We can modify the format using the strftime method:<br/>
+`{{execution_date.strftime('%Y-%m-%d')}}`
+
+#### What if start_date is in the past?
+Airflow will schedule and run any past schedule intervals that have not yet been run, IF `catchup` paramer is set to `true`. <br/>
+If it it set to `false` the DAG will only be run for the most recent schedule interval, rather than executing all open past intervals.
 
 ### Triggering workflows
 So far we have seen how to schedule workflows based on time. Now lets take a look how to trigger workflow based on a specific event happened. For example a file has been uploaded.
