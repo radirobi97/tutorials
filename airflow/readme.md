@@ -113,6 +113,9 @@ Checking the log is a good practice to find the root of an error. It can be done
 
 Assume that one task failed. it would be unnecessary to restart the entire workflow. A nice feature of Airflow is that you can restart from the point of failure and onwards, without having to restart any previously succeeded tasks. To do this click on **CLEAR** button.
 
+<======================================================><br/>
+<======================================================>
+
 ### Scheduling workflows
 Airflow DAGs can be run at regular intervals by defining a scheduled interval for the DAG. Schedule intervals can be defined using the `schedule_interval` argument when initializing the DAG. By default, the value of this argument is `None`, which means that the DAG will not be scheduled and will only be run when triggered manually from the UI or the API.
 
@@ -160,10 +163,79 @@ We can refer to this in code as:<br/>
 `{{execution_date}}`<br/>
 We can modify the format using the strftime method:<br/>
 `{{execution_date.strftime('%Y-%m-%d')}}`
+Another way to format is using python syntax:<br/>
+`{{ '{:02}'.format(execution_date.hour) }}`
 
 #### What if start_date is in the past?
 Airflow will schedule and run any past schedule intervals that have not yet been run, IF `catchup` paramer is set to `true`. <br/>
 If it it set to `false` the DAG will only be run for the most recent schedule interval, rather than executing all open past intervals.
+
+<======================================================><br/>
+<======================================================>
+
+### Templating
+The double curly braces denote a Jinja templated string in the python code. Not all operator arguments are templatable.
+
+#### Template_fields
+Every operator can keep a whitelist of attributes that are templatable. This list is set by the attribute `template_fields` on every operator. <br/>
+List of these are available on the following link. <br/>
+[HERE](https://airflow.readthedocs.io/en/stable/_api/airflow/operators)
+
+#### Variables in the context
+The following link contains which variables are available in context of a task.<br/>
+[HERE](https://airflow.apache.org/docs/stable/macros.html)
+
+
+#### Accessing context variables in Python callables
+Steps to access context variables:
+- set `provide_context` to true
+- use the `**context` as paramer to the function
+
+```python
+def _print_context(**context):
+   print(context["name_of_key"])
+
+print_context = PythonOperator(
+   task_id="print_context",
+   python_callable=_print_context,
+   provide_context=True,
+   dag=dag,
+)
+```
+We can directly use the context variables instead of having to extract it from `context` with `context["name_of_key"]`. See the example below: <br/>
+```python
+def _print_context(execution_date, **context):
+	print(execution_date)
+	print(context["next_execution_date"])
+```
+If we do not define explicitly the name of the context variable in the function signature, that variable can be accessed only via **context**.
+
+#### Passing basic parameters to Python callables
+- `op_args`: serves as non-keyword parameters
+- `op_kwargs`: key-value pairs can be defined
+
+```python
+_get_data("/tmp/wikipageviews.gz")
+get_data = PythonOperator(
+		...
+   op_args=["/tmp/wikipageviews.gz"],
+	  ...
+)
+################################################
+_get_data(output_path="/tmp/wikipageviews.gz")
+get_data = PythonOperator(
+		...
+   op_kwargs={"output_path": "/tmp/wikipageviews.gz"},
+	  ...
+)
+```
+##### Printing out values of templated fields
+From the CLI:<br/>
+`airflow render [dag id] [task id] [values]`
+
+
+<======================================================><br/>
+<======================================================>
 
 ### Triggering workflows
 So far we have seen how to schedule workflows based on time. Now lets take a look how to trigger workflow based on a specific event happened. For example a file has been uploaded.
