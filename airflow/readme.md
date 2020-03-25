@@ -233,6 +233,28 @@ get_data = PythonOperator(
 From the CLI:<br/>
 `airflow render [dag id] [task id] [values]`
 
+#### Template_ext
+The content of files can also be templated. Each operator can template files with specific extensions by providing the filepath to the operator. <br/>
+`template_ext` is the fields, which holds the file extensions that can be templatable by the operator.
+
+##### Search path to templatable files
+Jinja requires us to provide the path to search for templatable files. By default only the path of the DAG file is searched for. <br/>
+To add more locations to the the default,  `template_searchpath` argument should be used while creating the DAG itself.
+
+<======================================================><br/>
+<======================================================>
+
+### Connection to databases
+Airflow supports connecting to a wide range of external systems with the help of many operators. To connect to an external system often requires specific dependencies to be installed, which allow connecting and communicating with the external system.<br/>
+`pip install apache-airflow[name_of_package]`<br/>
+Database operators determine what has to be done, a **hook** determines how to do something. Hooks are doing their own things udner the hood.
+
+**Example**:
+![branch](./images/database.png)
+- `postgres_conn_id`: is the ID of a given connection, this identifies the database
+
+We can define connection via the user interface in **Admin -> Connections**.
+
 
 <======================================================><br/>
 <======================================================>
