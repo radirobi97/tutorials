@@ -93,9 +93,6 @@ Lets take an example:<br/>
 This ensures the get_pictures task runs only after download_launches has been completed successfully, and the notify task only runs after get_pictures has completed successfully.
 
 
-##### Scheduling workflows
-We can schedule a DAG to run at certain intervals. This is controlled on the DAG by setting the `schedule_interval` argument:
-
 ##### Failure
 It’s not uncommon for tasks to fail, which could be for a multitude of reasons
 ###### In case of task failing
@@ -103,6 +100,48 @@ Checking the log is a good practice to find the root of an error. It can be done
 
 Assume that one task failed. it would be unnecessary to restart the entire workflow. A nice feature of Airflow is that you can restart from the point of failure and onwards, without having to restart any previously succeeded tasks. To do this click on **CLEAR** button.
 
+### Scheduling workflows
+Airflow DAGs can be run at regular intervals by defining a scheduled interval for the DAG. Schedule intervals can be defined using the `schedule_interval` argument when initializing the DAG. By default, the value of this argument is `None`, which means that the DAG will not be scheduled and will only be run when triggered manually from the UI or the API.
+
+#### Scheduling using macros
+We can use the macro `@daily` for defining a daily scheduled interval which runs our DAG once every day at midnight: <br/>
+    `schedule_interval="@daily"`<br/>
+Other macros:
+- @once
+- @daily
+- @monthly, etc..
+
+#### Start_date and End_date
+For Airflow to know from which date it should start scheduling our DAG runs, we also need to provide a start date for our DAG. `start_date=dt.datetime(year=2020, month=3, day=25)`. <br/>Airflow will schedule the first execution of our DAG to run at `start_date + interval`.<br/> So for example:<br/>
+A dag with `start_date` 2020-03-25 and `schedule_interval` **@daily** will run first at 2020-03-06 00:00:00.
+
+It is possible to define until which date our workflow should beeing scheduled. <br/>
+`end_date=dt.datetime(year=2020, month=3, day=29),`<br/>
+The last run will be in this case **2020-03-29 00:00:00**.
+
+#### Scheduling using cron intervals
+It is possible to schedule our workflows using cron notations.
+```
+┌─── minute (0 - 59)
+│ ┌────── hour (0 - 23)
+│ │ ┌───── day of the month (1 - 31)
+│ │ │ ┌───── month (1 - 12)
+│ │ │ │ ┌──── day of the week (0 - 6)
+* * * * *
+```
+Some example:
+- `0 * * * *`: hourly
+- `0 0 * * *`: daily
+- `0 0 * * 0`: weekly
+- `0 0 1 * *`: midnight on the first of every month
+- `45 23 * * SAT`: 23:45 every Saturday
+
+#### Frequency based intervals
+If we want a workflow to run on every third day we can use `timedelta`. <br/>
+    `schedule_interval=timedelta(days=3)`
+
+#### Execution_date
+Airflow provides parameters that can be used. One of them is `execution_date`, which represents the date and time for which our DAG is being executed.
 
 ### Triggering workflows
 So far we have seen how to schedule workflows based on time. Now lets take a look how to trigger workflow based on a specific event happened. For example a file has been uploaded.
@@ -176,3 +215,8 @@ Using this sensor it is possible to check states of a given task in other DAG.
 ![exttask](./images/exttask.png)<br/>
 The default behaviour of the ExternalTaskSensor simply checks for a successful state of a task with the **exact same execution date** as itself. So, if an ExternalTaskSensor runs with an execution date of `A`, it would query the Airflow metastore for the given task, also with an execution date of `A`. <br/>
 Now let’s say both DAGs have a different schedule interval, then these would not align and thus the ExternalTaskSensor would never find the corresponding task.
+
+##### Triggering from CLI
+`airflow trigger_dag dag1 --conf ‘{“supermarket_id”: 1}’`<br/>where
+- dag1 is the dag_id
+- conf adds additional configuration to the dag, these configuration is available via the **context**
