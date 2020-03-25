@@ -7,7 +7,7 @@ This tutorial based on the book **[Data Pipelines with Apache Airflow](https://w
 - [Complete Airflow Tutorial](#complete-airflow-tutorial)
 	- [Table of contents](#table-of-contents)
 		- [What is Airflow?](#what-is-airflow)
-				- [Airflow nomenclature](#airflow-nomenclature)
+				- [Airflows nomenclature](#airflows-nomenclature)
 				- [What is Airflow for?](#what-is-airflow-for)
 				- [Airflow components](#airflow-components)
 				- [Backfilling](#backfilling)
@@ -37,7 +37,7 @@ This tutorial based on the book **[Data Pipelines with Apache Airflow](https://w
 ### What is Airflow?
 Airflow is a workflow management system. Airflow provides a Python framework to develop data pipelines. It can operate and scale out on multiple machines.<br/> **AIRFLOW IS DESIGNED TO HANDLE BATCH PROCESSING** not for streaming data.
 
-##### Airflow nomenclature
+##### Airflows nomenclature
 
 The followings are the most used
 - Airflow **DAGs** are composed of **Tasks**
