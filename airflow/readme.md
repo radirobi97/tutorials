@@ -3,24 +3,21 @@ This tutorial based on the book **[Data Pipelines with Apache Airflow](https://w
 
 ## Table of contents
 <!-- TOC depthFrom:1 depthTo:6 withLinks:1 updateOnSave:1 orderedList:0 -->
-
-- [Complete Airflow Tutorial](#complete-airflow-tutorial)
-	- [Table of contents](#table-of-contents)
-		- [What is Airflow?](#what-is-airflow)
-				- [Airflow nomenclature](#airflow-nomenclature)
-				- [What is Airflow for?](#what-is-airflow-for)
-				- [Airflow components](#airflow-components)
-				- [Backfilling](#backfilling)
-		- [DAGs](#dags)
-				- [Structure of a basic dag](#structure-of-a-basic-dag)
-				- [Scheduling workflows](#scheduling-workflows)
-				- [Failure](#failure)
-					- [In case of task failing](#in-case-of-task-failing)
-		- [Triggering workflows](#triggering-workflows)
-			- [Sensors](#sensors)
-				- [FileSensor](#filesensor)
-				- [PythonSensor](#pythonsensor)
-				- [Sensor Deadlock](#sensor-deadlock)
+- [What is Airflow?](#what-is-airflow)
+	- [Airflow nomenclature](#airflow-nomenclature)
+	- [What is Airflow for?](#what-is-airflow-for)
+	- [Airflow components](#airflow-components)
+	- [Backfilling](#backfilling)
+- [DAGs](#dags)
+	- [Structure of a basic dag](#structure-of-a-basic-dag)
+	- [Scheduling workflows](#scheduling-workflows)
+	- [Failure](#failure)
+	- [In case of task failing](#in-case-of-task-failing)
+- [Triggering workflows](#triggering-workflows)
+	- [Sensors](#sensors)
+		- [FileSensor](#filesensor)
+		- [PythonSensor](#pythonsensor)
+		- [Sensor Deadlock](#sensor-deadlock)
 
 <!-- /TOC -->
 
@@ -159,4 +156,23 @@ there’s a limit to the number of tasks Airflow can handle.  There are limits t
 DAG class has a `concurrency` argument which controls how many simultaneously running tasks are allowed within that DAG. Tasks can be occupied all of the slots which
 results in a **sensor deadlock**. The Sensor class takes an argument mode, which can be set to either `poke` or `reschedule`. By default it’s set to `poke`, leading to the blocking behaviour.
 This means, the sensor task occupies a task slot as long as it’s running. Once in a while it pokes the condition, and then does nothing but still occupies a task slot. <br/>
-The sensor `reschedule` mode releases the slot after it has finished poking, so it only occupies the slots while it’s doing actual work. 
+The sensor `reschedule` mode releases the slot after it has finished poking, so it only occupies the slots while it’s doing actual work.
+
+
+##### TriggerDagRunOperator
+
+This operator allows triggering other DAGs. The string provided to the `trigger_dag_id` argument of the TriggerDagRunOperator must match the dag_id of the DAG to trigger.
+
+Scheduled DAG runs and task instances have a black border on the UI, while triggered dont. Furthermore, each DAG run holds a field `run_id`. The value of the run_id starts with either:
+- **scheduled__** to indicate the DAG run started because of its schedule
+- **trig__** to indicate the DAG run started by a TriggerDagRunOperator
+- **manual__** to indicate the DAG run started by a manual action (i.e. pressing the “Trigger Dag” button)
+
+###### What about backfilling?
+Clearing tasks only clears tasks within the same DAG. So if, say `DAG1` contains a TriggerDAgRunOperator then a new DAG run will be created to the DAG where the main DAG1 points to.
+
+##### ExternalTaskSensor
+Using this sensor it is possible to check states of a given task in other DAG.
+![exttask](./images/exttask.png)<br/>
+The default behaviour of the ExternalTaskSensor simply checks for a successful state of a task with the **exact same execution date** as itself. So, if an ExternalTaskSensor runs with an execution date of `A`, it would query the Airflow metastore for the given task, also with an execution date of `A`. <br/>
+Now let’s say both DAGs have a different schedule interval, then these would not align and thus the ExternalTaskSensor would never find the corresponding task.
