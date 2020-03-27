@@ -2,7 +2,45 @@
 This tutorial based on the book **[Data Pipelines with Apache Airflow](https://www.manning.com/books/data-pipelines-with-apache-airflow)**.
 
 ## Table of contents
-
+- [What is Airflow?](#what-is-airflow)
+  - [Airflows nomenclature](#airflows-nomenclature)
+  - [What is Airflow for?](#what-is-airflow-for)
+  - [Airflow components](#airflow-components)
+  - [Backfilling](#backfilling)
+- [DAGs](#dags)
+  - [Structure of a basic dag](#structure-of-a-basic-dag)
+  - [Failure](#failure)
+  - [In case of task failing](#in-case-of-task-failing)
+- [Scheduling workflows](#scheduling-workflows)
+  - [Scheduling using macros](#scheduling-using-macros)
+  - [Start_date and End_date](#startdate-and-enddate)
+  - [Scheduling using cron intervals](#scheduling-using-cron-intervals)
+  - [Frequency based intervals](#frequency-based-intervals)
+  - [Execution_date](#executiondate)
+  - [What if start_date is in the past?](#what-if-startdate-is-in-the-past)
+- [Templating](#templating)
+  - [Template_fields](#templatefields)
+  - [Variables in the context](#variables-in-the-context)
+  - [Accessing context variables in Python callables](#accessing-context-variables-in-python-callables)
+  - [Passing basic parameters to Python callables](#passing-basic-parameters-to-python-callables)
+  - [Printing out values of templated fields](#printing-out-values-of-templated-fields)
+  - [Template_ext](#templateext)
+  - [Search path to templatable files](#search-path-to-templatable-files)
+- [Connection to databases](#connection-to-databases)
+- [Triggering workflows](#triggering-workflows)
+  - [Sensors](#sensors)
+    - [FileSensor](#filesensor)
+    - [PythonSensor](#pythonsensor)
+  - [Sensor Deadlock](#sensor-deadlock)
+  - [TriggerDagRunOperator](#triggerdagrunoperator)
+  - [What about backfilling?](#what-about-backfilling)
+  - [ExternalTaskSensor](#externaltasksensor)
+  - [Triggering from CLI](#triggering-from-cli)
+- [Custom components](#custom-components)
+  - [Custom Hooks](#custom-hooks)
+  - [Custom Operators](#custom-operators)
+    - [Make fields of operator templatable](#make-fields-of-operator-templatable)
+  - [Custom Sensors](#custom-sensors)
 
 ### What is Airflow?
 Airflow is a workflow management system. Airflow provides a Python framework to develop data pipelines. It can operate and scale out on multiple machines.<br/> **AIRFLOW IS DESIGNED TO HANDLE BATCH PROCESSING** not for streaming data.
@@ -191,7 +229,7 @@ get_data = PythonOperator(
    op_args=["/tmp/wikipageviews.gz"],
 	  ...
 )
-################################################
+
 _get_data(output_path="/tmp/wikipageviews.gz")
 get_data = PythonOperator(
 		...
@@ -384,4 +422,19 @@ Outside of the constructor just write.
 class MovielensFetchRatingsOperator(BaseOperator):
    ...
    template_fields = ("_fieldFirst", "_fieldTwo")
+```
+
+#### Custom Sensors
+Without a further a do, customer sensors can be implemented just like Operators. The only difference is we should overwrite `poke` method. And a **BOOLEAN RETURN VALUE** is required.
+```python
+class MyCustomSensor(BaseSensorOperator):
+   ##init method..
+   def poke(self, context):
+       ...
+       if
+          ...
+          return True
+       else
+          ...
+          return False
 ```
