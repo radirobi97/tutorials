@@ -22,6 +22,7 @@ All docker containers use the resources of the host computer.
 - `docker run -d [image]`: creates a container from the image and starts the container in the background
 - `docker run -p 8080:80 -v /home/users/src:/var/www/html`: it mounts a local folder to the container
 - `docker exec [name_of_container] [command]`: runs a command in a running container
+- `docker commit [name_of_container]`: creates an image from a container **not recommended**
 
 #### Builds related things
 - `docker build -t [this_will_be_the_name_of_image] [location_of_docker_file]`: builds our image
