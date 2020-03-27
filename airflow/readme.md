@@ -312,7 +312,9 @@ Now let’s say both DAGs have a different schedule interval, then these would n
 
 
 
-### Custom Hook
+### Custom components
+
+#### Custom Hooks
 Trying to get data from an external API, it is a good practice to define a custom hook.
 
 **1.** All hooks are created as subclasses of the abstract BaseHook class
@@ -345,4 +347,41 @@ def get_conn(self):
        return self_session
 ```
 
-**4.** Any functionality can be implemented as one method of the Hook class. 
+**4.** Any functionality can be implemented as one method of the Hook class.
+
+**5.** To use later this hook we should save it somewhere inside our dag folder. <br/>For example if we save it to `dags/myHooks/customHook.py` we can use it from code as `from custom.myHooks import customHook`.
+
+**6.** **USING HOOKS IN CODE ALWAYS REQUIRES CLOSING THE HOOK. THIS CAN BE DONE VIA `hookName.close()`**.
+
+#### Custom Operators
+In Airflow, all operators are built as subclasses of the BaseOperator class. Specific params to our operator can be specified explicitly in the `__init__`.  <br/>
+To ensure that these default arguments are applied to our custom operator, Airflow supplies the **apply_defaults** decorator, which is applied to the `__init__` method of your operator.
+
+```python
+from airflow.models import BaseOperator
+from airflow.utils import apply_defaults
+
+class MyCustomOperator(BaseOperator):
+   @apply_defaults
+   def __init__(self, myParam, **kwargs):
+       super.__init__(self, **kwargs)
+       self._myParam = myParam
+       ...
+```
+
+The behaviour of the operator is defined using the execute method, which is the main method that Airflow calls when the operator is actually being executed as part of a DAG run.
+```python
+class MyCustomOperator(BaseOperator):
+   ...
+   def execute(self, context):
+       ...
+```
+The function parameter `context` is a dict contains all the Airflow context variables.
+
+##### Make fields of operator templatable
+Outside of the constructor just write.
+```python
+class MovielensFetchRatingsOperator(BaseOperator):
+   ...
+   template_fields = ("_fieldFirst", "_fieldTwo")
+```
