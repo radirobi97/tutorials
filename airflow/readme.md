@@ -2,37 +2,7 @@
 This tutorial based on the book **[Data Pipelines with Apache Airflow](https://www.manning.com/books/data-pipelines-with-apache-airflow)**.
 
 ## Table of contents
-<!-- TOC depthFrom:1 depthTo:6 withLinks:1 updateOnSave:1 orderedList:0 -->
 
-- [Complete Airflow Tutorial](#complete-airflow-tutorial)
-	- [Table of contents](#table-of-contents)
-		- [What is Airflow?](#what-is-airflow)
-				- [Airflows nomenclature](#airflows-nomenclature)
-				- [What is Airflow for?](#what-is-airflow-for)
-				- [Airflow components](#airflow-components)
-				- [Backfilling](#backfilling)
-		- [DAGs](#dags)
-				- [Structure of a basic dag](#structure-of-a-basic-dag)
-				- [Failure](#failure)
-					- [In case of task failing](#in-case-of-task-failing)
-		- [Scheduling workflows](#scheduling-workflows)
-			- [Scheduling using macros](#scheduling-using-macros)
-			- [Start_date and End_date](#startdate-and-enddate)
-			- [Scheduling using cron intervals](#scheduling-using-cron-intervals)
-			- [Frequency based intervals](#frequency-based-intervals)
-			- [Execution_date](#executiondate)
-			- [What if start_date is in the past?](#what-if-startdate-is-in-the-past)
-		- [Triggering workflows](#triggering-workflows)
-			- [Sensors](#sensors)
-				- [FileSensor](#filesensor)
-				- [PythonSensor](#pythonsensor)
-				- [Sensor Deadlock](#sensor-deadlock)
-				- [TriggerDagRunOperator](#triggerdagrunoperator)
-					- [What about backfilling?](#what-about-backfilling)
-				- [ExternalTaskSensor](#externaltasksensor)
-				- [Triggering from CLI](#triggering-from-cli)
-
-<!-- /TOC -->
 
 ### What is Airflow?
 Airflow is a workflow management system. Airflow provides a Python framework to develop data pipelines. It can operate and scale out on multiple machines.<br/> **AIRFLOW IS DESIGNED TO HANDLE BATCH PROCESSING** not for streaming data.
@@ -336,3 +306,43 @@ Now let’s say both DAGs have a different schedule interval, then these would n
 `airflow trigger_dag dag1 --conf ‘{“supermarket_id”: 1}’`<br/>where
 - dag1 is the dag_id
 - conf adds additional configuration to the dag, these configuration is available via the **context**
+
+
+
+
+
+
+### Custom Hook
+Trying to get data from an external API, it is a good practice to define a custom hook.
+
+**1.** All hooks are created as subclasses of the abstract BaseHook class
+```python
+from airflow.hooks.base_hook import BaseHook
+
+class CustomHook(BaseHook):
+   ...
+```
+
+**2.** The `init` method specifies which connection the hook uses and any other extra arguments that our hook might need in the future.
+```python
+from airflow.hooks.base_hook import BaseHook
+
+class CustomHook(BaseHook):
+   def __init__(self, conn_id):
+     super().__init__(source=None)
+     self._conn_id = conn_id
+```
+
+**3.** Airflow hooks are expected to define a `get_conn` method, which is responsible for setting up a connection to an external system.
+
+External connections with the proper credentials can be defined via the UI. Using the base class `self.get_connection(self._conn_id)` method we can retrieve the connection details for a given connection ID from the metastore.
+
+**A GOOD PRACTICE is caching our session in the instance as member variables.** It helps to avoid recreating the connection every time when we call the `get_conn` method. It is easily doable using an `if` statment.
+```python
+def get_conn(self):
+       if self._session is None:
+         ###CREATE THE SESSION
+       return self_session
+```
+
+**4.** Any functionality can be implemented as one method of the Hook class. 
