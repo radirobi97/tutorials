@@ -20,7 +20,7 @@ version: '3' #version of compose
 
 services:    
   app:                                #name of the service
-    build: .                          #we want to use our Dockerfile to build an image
+    build: .                          #we want to use our Dockerfile to build an image, this is the folder where our files located
     image: takacsmark/flask-redis:1.0 #this will be the name of the image
     restart: alwas                    #restart policies can be defines, it determines when to restart a given container
     environment:                      #setting environtment variables
@@ -36,12 +36,20 @@ services:
       - mynet
     volumes:
       - mydata:/data
+    command: ["bash"]                 #it makes possible to overwrite the default command of the image
 
 networks:                             #here we define our network
   mynet:
 
 volumes:
   mydata:
+```
+
+If our dockerfile has a custom name we should use the following:
+```yml
+build:
+  context: .                             #where our files located
+  dockerfile: Dockerfile.dev             #custom name of our Dockerfile
 ```
 
 #### Variables
