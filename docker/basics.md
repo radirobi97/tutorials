@@ -25,7 +25,8 @@ All docker containers use the resources of the host computer.
 - `docker commit [name_of_container]`: creates an image from a container **not recommended**
 
 #### Builds related things
-- `docker build -t [this_will_be_the_name_of_image] [location_of_docker_file]`: builds our image
+- `docker build -t [this_will_be_the_name_of_image] [build_context]`: builds our image
+- `docker build -f [custom_dockerfile_name] [build_context]`: builds an image from a dockerfile with custom name
 
 ### Dangling images
 If we build an image with the same name, the older one losts his tag. Its called a **dangling** image.<br/>
